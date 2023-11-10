@@ -1,59 +1,62 @@
 import requests
 import datetime
 
-ufs_brasil = {
-    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MS", "MA", "MT",
-    "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"
-}
+class WeatherForecast:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.ufs_brasil = {
+            "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MS", "MA", "MT",
+            "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"
+        }
 
+    def get_weather_data(self, uf):
+        if uf in self.ufs_brasil:
+            url = f"https://api.hgbrasil.com/weather?key={self.api_key}&city_name={uf}"
+            response = requests.get(url)
 
-def get_weather_data(uf):
-    key = "c77b469f"
+            if response.status_code == 200:
+                data = response.json()
+                if 'results' not in data:
+                    print(f"Erro: Não foi possível encontrar informações para o estado {uf}.")
+                    return
 
-    if uf in ufs_brasil:
-        url = f"https://api.hgbrasil.com/weather?key={key}&city_name={uf}"
-        response = requests.get(url)
+                weather = data['results']
 
-        if response.status_code == 200:
-            data = response.json()
-            if 'results' not in data:
-                print(f"Erro: Não foi possível encontrar informações para o estado {uf}.")
-                return
+                temperature = weather['temp']
+                current_time = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                description = weather['description']
+                condition = weather['condition_slug']
+                humidity = weather['humidity']
+                wind_speed = weather['wind_speedy']
+                sunrise = weather['sunrise']
+                sunset = weather['sunset']
 
-            weather = data['results']
+                print("Previsão do tempo para", uf)
+                print("Temperatura atual:", temperature, "ºC")
+                print("Data e Hora da consulta:", current_time)
+                print("Descrição do tempo atual:", description)
+                print("Condição de tempo atual:", condition)
+                print("Umidade:", humidity)
+                print("Velocidade do vento:", wind_speed)
+                print("Nascer do sol:", sunrise)
+                print("Pôr do sol:", sunset)
 
-            temperature = weather['temp']
-            current_time = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-            description = weather['description']
-            condition = weather['condition_slug']
-            humidity = weather['humidity']
-            wind_speed = weather['wind_speedy']
-            sunrise = weather['sunrise']
-            sunset = weather['sunset']
+                forecast = weather['forecast'][0]
+                max_temp = forecast['max']
+                min_temp = forecast['min']
 
-            print("Previsão do tempo para", uf)
-            print("Temperatura atual:", temperature, "ºC")
-            print("Data e Hora da consulta:", current_time)
-            print("Descrição do tempo atual:", description)
-            print("Condição de tempo atual:", condition)
-            print("Umidade:", humidity)
-            print("Velocidade do vento:", wind_speed)
-            print("Nascer do sol:", sunrise)
-            print("Pôr do sol:", sunset)
-
-            forecast = weather['forecast'][0]
-            max_temp = forecast['max']
-            min_temp = forecast['min']
-
-            print("Médias das temperaturas máxima e mínima semanal:")
-            print("Temperatura máxima:", max_temp)
-            print("Temperatura mínima:", min_temp)
+                print("Médias das temperaturas máxima e mínima semanal:")
+                print("Temperatura máxima:", max_temp)
+                print("Temperatura mínima:", min_temp)
+            else:
+                print("Erro ao buscar os dados do tempo. Por favor, verifique se a UF está correta.")
         else:
-            print("Erro ao buscar os dados do tempo. Por favor, verifique se a UF está correta.")
-    else:
-        print(f"Erro: UF não encontrada na lista de estados do Brasil.")
+            print(f"Erro: UF não encontrada na lista de estados do Brasil.")
 
+if __name__ == "__main__":
+    api_key = "ccbd31f5"
+    weather_forecast = WeatherForecast(api_key)
 
-while True:
-    uf = input("Digite a UF para buscar a previsão do tempo: ").upper()
-    get_weather_data(uf)
+    while True:
+        uf = input("Digite a UF para buscar a previsão do tempo: ").upper()
+        weather_forecast.get_weather_data(uf)
